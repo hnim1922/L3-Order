@@ -1,0 +1,85 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["jsonProtocol"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  shadowDatabaseUrl = env("POSTGRES_URL_NON_POOLING") // used for migrations
+}
+enum DrinkSize{
+    S
+    M
+    L
+    XL
+    NULL
+}
+enum DrinkType{
+    Hot
+    Cold
+    Blended
+    NULL
+}
+enum MilkOption{
+    WholeMilk
+    AlmondMilk
+    NULL
+}
+enum FoodType{
+    Sandwich
+    Bagel
+    NULL
+}
+enum FoodOption{
+    Egg
+    Turkey
+    Butter
+    CreamCheese
+    NULL
+}
+
+model Drink {
+    id        String     @default(cuid()) @id
+    name      String
+    drinkType DrinkType @default(NULL)
+    drinkSize DrinkSize @default(NULL)
+    milkOption MilkOption  @default(NULL)
+    chocolateSauce Int?
+    whippedCream Boolean  
+    orders  DrinkOrder[]
+                
+}
+
+model Breakfast {
+  id            String       @default(cuid()) @id
+  foodType      FoodType     @default(NULL)
+  foodOption    FoodOption   @default(NULL)
+  orders        BreakfastOrder[]
+}
+
+model Order {
+  id            String       @default(cuid()) @id
+  drinks         DrinkOrder[]     
+  breakfasts     BreakfastOrder[]   
+  price         Int
+}
+
+model DrinkOrder {
+  id            String       @default(cuid()) @id
+  drink         Drink        @relation(fields: [drinkId], references: [id])     
+  drinkId       String
+  order         Order        @relation(fields: [orderId], references: [id])     
+  orderId       String
+}
+
+model BreakfastOrder {
+  id            String       @default(cuid()) @id
+  breakfast     Breakfast    @relation(fields: [breakfastId], references: [id])     
+  breakfastId   String
+  order         Order        @relation(fields: [orderId], references: [id])     
+  orderId       String
+}
