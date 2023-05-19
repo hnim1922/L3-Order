@@ -1,9 +1,11 @@
+//page.tsx
 "use client";
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './page.css';
-import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Layout, List, Menu, Modal, Radio, RadioChangeEvent, Row, Select, theme } from 'antd';
+import { Button, Card, Col, Form, InputNumber, Layout, List, Menu, Modal, Radio, RadioChangeEvent, Row, Select, theme } from 'antd';
 const { Header, Content, Footer, Sider } = Layout;
-import { Drink, getDrinks, Props } from '@/api/drink';
+import { GetStaticProps } from 'next';
+import { prisma } from '@/lib/prisma';
 
 
 
@@ -11,24 +13,31 @@ export const runtime = 'edge'
 export const preferredRegion = 'home'
 export const dynamic = 'force-dynamic'
 
-type PageProps = Props;
-const Page: React.FC = () => {
-  const [drinks, setDrinks] = useState<Drink[]>([]);
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const props = await getDrinks();
-        console.log(props.drinks);
+export type Drink = {
+  id: string
+  name: string
+};
 
-        setDrinks(props.drinks);
-      } catch (error) {
-        console.error('Error fetching drinks:', error);
-      }
-    };
+export type Props = {
+  drinks: Drink[];
+};
 
-    fetchData();
-  }, []);
+export const getDrinks: GetStaticProps = async () => {
+  const drinks = await prisma.drink.findMany({
+    select: {
+      id: true,
+      name: true
+    }
+  });
 
+  return {
+    props: { drinks },
+    revalidate: 10,
+  };
+}
+
+const Page: React.FC<Props> = (props) => {
+  console.log(props.drinks); // Check the value of drinks
   const {
     token: { colorBgContainer },
   } = theme.useToken();
@@ -105,7 +114,7 @@ const Page: React.FC = () => {
           <Content style={{ margin: '24px 16px 0', display: "flex" }}>
             <Content style={{ flex: 0.7, marginRight: '10px' }}>
               <Row gutter={[16, 16]}>
-                {drinks?.map((item) => (
+                {props.drinks?.map((item) => (
                   <Col key={item.id} span={8}>
                     <Card
                       className="coffeeCard"
