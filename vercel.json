@@ -1,19 +1,4 @@
 {
-    "version": 2,
-    "builds": [
-        {
-            "src": "next.config.js",
-            "use": "@vercel/next"
-        }
-    ],
-    "routes": [
-        {
-            "src": "/api/.*",
-            "dest": "/api/page.tsx"
-        },
-        {
-            "src": "/(.*)",
-            "dest": "/$1"
-        }
-    ]
+    "buildCommand": "pnpm turbo build",
+    "ignoreCommand": "pnpm dlx turbo-ignore"
 }
