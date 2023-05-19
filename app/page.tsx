@@ -1,37 +1,33 @@
 "use client";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './page.css';
-import prisma from '../lib/prisma';
 import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Layout, List, Menu, Modal, Radio, RadioChangeEvent, Row, Select, theme } from 'antd';
-import { GetServerSideProps, NextPage } from 'next';
 const { Header, Content, Footer, Sider } = Layout;
+import { Drink, getDrinks, Props } from '@/api/drink';
+
+
 
 export const runtime = 'edge'
 export const preferredRegion = 'home'
 export const dynamic = 'force-dynamic'
 
-type Drink = {
-  id: string;
-  name: string;
-};
+type PageProps = Props;
+const Page: React.FC = () => {
+  const [drinks, setDrinks] = useState<Drink[]>([]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const props = await getDrinks();
+        console.log(props.drinks);
 
-type PageProps = {
-  drink: Drink[];
-};
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const drink = await prisma?.drink.findMany({
-    select: {
-      id: true,
-      name: true
-    }
-  })
-  return {
-    props: { drink },
-    revalidate: 10
-  }
-}
+        setDrinks(props.drinks);
+      } catch (error) {
+        console.error('Error fetching drinks:', error);
+      }
+    };
 
-const Page: NextPage<PageProps> = ({ drink }) => {
+    fetchData();
+  }, []);
 
   const {
     token: { colorBgContainer },
@@ -71,7 +67,7 @@ const Page: NextPage<PageProps> = ({ drink }) => {
           breakpoint="lg"
           collapsedWidth="0"
           onBreakpoint={(broken) => {
-            console.log(broken);
+
           }}
           onCollapse={(collapsed, type) => {
             console.log(collapsed, type);
@@ -109,7 +105,7 @@ const Page: NextPage<PageProps> = ({ drink }) => {
           <Content style={{ margin: '24px 16px 0', display: "flex" }}>
             <Content style={{ flex: 0.7, marginRight: '10px' }}>
               <Row gutter={[16, 16]}>
-                {drink?.map((item) => (
+                {drinks?.map((item) => (
                   <Col key={item.id} span={8}>
                     <Card
                       className="coffeeCard"
