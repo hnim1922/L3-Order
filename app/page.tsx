@@ -6,6 +6,10 @@ import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Layout, List, Me
 import { GetServerSideProps, NextPage } from 'next';
 const { Header, Content, Footer, Sider } = Layout;
 
+export const runtime = 'edge'
+export const preferredRegion = 'home'
+export const dynamic = 'force-dynamic'
+
 type Drink = {
   id: string;
   name: string;
